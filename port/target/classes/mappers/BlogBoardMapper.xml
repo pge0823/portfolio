@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.goeun.mapper.BlogBoardMapper">
+	<select id="topThreePopularPost" resultType="com.goeun.domain.BlogBoardVO">
+		<![CDATA[
+			select bno, title, writer, content, regdate, viewcnt, email
+			from tbl_blogBoard
+			where bno>0 and email = #{email}
+			order by viewcnt desc
+			limit 0, 3
+		]]>
+	</select>
+	
+	<select id="boardList" resultType="com.goeun.domain.BlogBoardVO">
+		<![CDATA[
+			select bno, title, writer, regdate, viewcnt, email
+			from tbl_blogBoard
+			where bno>0 and email = #{email}
+		]]>
+			
+		<include refid="search"></include>
+			
+		<![CDATA[
+			order by bno desc
+			limit #{pageStart}, #{perPageNum}
+		]]>
+	</select>
+	
+	<select id="totalCount" resultType="int">
+		<![CDATA[
+		select count(bno) 
+		from tbl_blogBoard 
+		where email=#{email}
+		]]>
+		<include refid="search"></include>
+	</select>
+	
+	
+	
+	<select id="read" resultType="com.goeun.domain.BlogBoardVO">
+		select bno, title, content, writer, regdate, viewcnt, email
+		from tbl_blogBoard
+		where bno=#{bno} AND email=#{email}
+	</select>
+	
+	<insert id="create">
+		insert into tbl_blogBoard(bno, title, content, writer, email)
+		values((select IFNULL(max(bno), 0)+1 from tbl_blogBoard as a where email=#{email}), #{title}, #{content}, #{writer}, #{email})
+	</insert>
+	
+	<update id="update">
+		update tbl_blogBoard set title=#{title}, content=#{content}, regdate=now()
+		where email=#{email} AND bno=#{bno}
+	</update>
+	
+	<delete id="delete">
+		delete from tbl_blogBoard where bno=#{bno} AND email=#{email}
+	</delete>
+	
+	<select id="nextBno">
+		select IFNULL(max(bno), 0)+1 from tbl_blogBoard where email=#{email}
+	</select>
+	
+	
+	
+	<update id="updateViewCnt">
+		update tbl_blogBoard set viewcnt=viewcnt+1 where bno=#{bno} and email=#{email} 		
+	</update>
+	
+	<select id="upperBnoCount" resultType="int">
+		<![CDATA[
+		select count(bno) from tbl_blogBoard where bno>#{bno} and email=#{email}
+		]]>
+	</select>
+	
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				and title like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'c'.toString()">
+				and content like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'w'.toString()">
+				and writer like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				and (title like CONCAT('%', #{keyword}, '%') OR content like CONCAT('%', #{keyword}, '%'))
+			</if>
+		</if>		
+	</sql>
+</mapper> 
