@@ -36,7 +36,7 @@
 			<div class="collapse navbar-collapse" id="navbarResponsive">
 			<ul class="nav navbar-nav">
 				<li class=""><a href="/">Home</a></li>
-				<li class=""><a href="#">제작자</a></li>
+				<li class=""><a href="/blog/pge0823@naver.com">제작자</a></li>
 				<c:if test="${!empty login}">
 					<li><a href="/blog/${login.email}">My blog</a></li>
 				</c:if>
